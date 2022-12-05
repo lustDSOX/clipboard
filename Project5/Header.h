@@ -5,3 +5,5 @@
 #include<locale.h>
 
 LPWSTR CBOuput();
+void CBInput(LPWSTR);
+void ConsoleRead();
