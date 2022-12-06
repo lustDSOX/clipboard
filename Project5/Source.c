@@ -3,56 +3,18 @@
 int main() {
 	system("chcp 1251>nul");
 	//setlocale(LC_ALL, "Russian");
-	HANDLE file = CreateFile(L"text.docx", GENERIC_WRITE || FILE_SHARE_READ, 0, NULL,
-		OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL, NULL);
-	HANDLE hRead = CreateThread(NULL, NULL, ConsoleRead, NULL, NULL, NULL);
+	//HANDLE hRead = CreateThread(NULL, NULL, ConsoleRead, NULL, NULL, NULL);
 	char buffer[512];
 	while (TRUE)
 	{
 		Sleep(100);
-		LPWSTR text = CBOuput();
+		//LPWSTR text = CBOuput();
+		char* text = "ads12";
 		if (text != NULL) {
-			if (lstrlen(text) == 1) {
-				if (text[0] == '1') {
-					text = L"1-один";
-				}
-				else if (text[0] == '2') {
-					text = L"2-два";
-				}
-				else if (text[0] == '3') {
-					text = L"3-три";
-				}
-				else if (text[0] == '4') {
-					text = L"4-четыре";
-				}
-				else if (text[0] == '5') {
-					text = L"5-пять";
-				}
-				else if (text[0] == '6') {
-					text = L"6-шесть";
-				}
-				else if (text[0] == '7') {
-					text = L"7-семь";
-				}
-				else if (text[0] == '8') {
-					text = L"8-восемь";
-				}
-				else if (text[0] == '9') {
-					text = L"9-девять";
-				}
-				else if (text[0] == '0') {
-					text = L"0-ноль";
-				}
-				CBInput(text);
-			}
-			else {
-				if (file) {
-					wcstombs(&buffer, text, 512);
-					WriteFile(file, buffer, strlen(buffer), NULL, NULL);
-					OpenClipboard(NULL);
-					EmptyClipboard();
-					CloseClipboard();
+			for (size_t i = 0; i < strlen(text); i++)
+			{
+				if (isdigit(text[i])) {
+					insert_substring(text, print_as_digits(text[i]), i);
 				}
 			}
 		}
@@ -65,6 +27,7 @@ LPWSTR CBOuput() {
 	HANDLE CBtext = GetClipboardData(CF_UNICODETEXT);
 	text = (LPWSTR)GlobalLock(CBtext);
 	GlobalUnlock(CBtext);
+	//EmptyClipboard();
 	CloseClipboard();
 	return text;
 }
@@ -81,16 +44,61 @@ void CBInput(LPWSTR text) {
 
 void ConsoleRead() {
 	char text[512];
-	wchar_t  wtext[512];
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	while (TRUE)
 	{
-		scanf("%s", text);
-		mbstowcs(wtext, text, strlen(text) + 1);//Plus null
+		gets(text);
+		wchar_t* wtext = convertCharArrayToLPCWSTR(text);
 		LPWSTR ptr = wtext;
 		if (wcslen(ptr) > 0)
 		{
 			CBInput(ptr);
 		}
 	}
+}
+
+wchar_t* convertCharArrayToLPCWSTR(char* charArray)
+{
+	wchar_t* wString[512];
+	MultiByteToWideChar(CP_ACP, 0, charArray, -1, wString, 4096);
+	return wString;
+}
+
+char* print_as_digits(unsigned n) {
+	if (n) {
+		print_as_digits(n / 10);
+		return DIGITS[n % 10];
+	}
+}
+void insert_substring(char* a, char* b, int position)
+{
+	char* f, * e;
+	int length;
+
+	length = strlen(a);
+
+	f = substring(a, 1, position);
+	e = substring(a, position+2, length - position+1);
+
+	strcpy(a, "");
+	strcat(a, f);
+	strcat(a, b);
+	strcat(a, e);
+}
+char* substring(char* string, int position, int length)
+{
+	char* pointer;
+	int c;
+
+	pointer = malloc(length + 1);
+
+	if (pointer == NULL)
+		exit(EXIT_FAILURE);
+
+	for (c = 0; c < length; c++)
+		*(pointer + c) = *((string + position - 1) + c);
+
+	*(pointer + c) = '\0';
+
+	return pointer;
 }
