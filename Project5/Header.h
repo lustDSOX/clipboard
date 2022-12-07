@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+
 const char* DIGITS[] = {"ноль" ,"один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять"};
 
 LPWSTR CBOuput();
